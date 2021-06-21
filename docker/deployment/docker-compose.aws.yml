@@ -13,8 +13,11 @@ services:
       resources:
         reservations:
           cpus: "AWS_MONGO_CORES"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: openstudio
+      MONGO_INITDB_ROOT_PASSWORD: openstudio
   queue:
-    image: redis
+    image: redis:6.0.9
     ports:
       - "6379:6379"
     deploy:
@@ -24,6 +27,8 @@ services:
       resources:
         reservations:
           cpus: "1"
+    command: "redis-server --requirepass openstudio"
+
   web:
     image: localhost:5000/openstudio-server
     ports:
@@ -34,7 +39,11 @@ services:
       - OS_SERVER_NUMBER_OF_WORKERS=AWS_OS_SERVER_NUMBER_OF_WORKERS
       - MAX_REQUESTS=AWS_MAX_REQUESTS
       - MAX_POOL=AWS_MAX_POOL
+      - REDIS_URL=redis://:openstudio@queue:6379
+      - MONGO_USER=openstudio
+      - MONGO_PASSWORD=openstudio
       - QUEUES=analysis_wrappers
+      - SECRET_KEY_BASE=e28bb11989e51a155853d18944b3c20acc23f2d0a341261dd8e3fbb3a7689f8aa2ece6c70b716af7fe5b257852361c14e7148525271d6aaf59f785899c3c540a
     volumes:
       - osdata:/mnt/openstudio
     depends_on:
@@ -53,6 +62,10 @@ services:
     environment:
       - OS_SERVER_NUMBER_OF_WORKERS=AWS_OS_SERVER_NUMBER_OF_WORKERS
       - QUEUES=background,analyses
+      - REDIS_URL=redis://:openstudio@queue:6379
+      - MONGO_USER=openstudio
+      - MONGO_PASSWORD=openstudio
+      - SECRET_KEY_BASE=e28bb11989e51a155853d18944b3c20acc23f2d0a341261dd8e3fbb3a7689f8aa2ece6c70b716af7fe5b257852361c14e7148525271d6aaf59f785899c3c540a
     volumes:
       - osdata:/mnt/openstudio
     depends_on:
@@ -73,6 +86,10 @@ services:
     environment:
       - QUEUES=simulations
       - COUNT=1
+      - REDIS_URL=redis://:openstudio@queue:6379
+      - MONGO_USER=openstudio
+      - MONGO_PASSWORD=openstudio
+      - SECRET_KEY_BASE=e28bb11989e51a155853d18944b3c20acc23f2d0a341261dd8e3fbb3a7689f8aa2ece6c70b716af7fe5b257852361c14e7148525271d6aaf59f785899c3c540a
     volumes:
       - /mnt/openstudio
     depends_on:
@@ -95,6 +112,11 @@ services:
       - web
       - web-background
       - db
+    environment:
+      - REDIS_URL=redis://:openstudio@queue:6379
+      - MONGO_USER=openstudio
+      - MONGO_PASSWORD=openstudio
+      - SECRET_KEY_BASE=e28bb11989e51a155853d18944b3c20acc23f2d0a341261dd8e3fbb3a7689f8aa2ece6c70b716af7fe5b257852361c14e7148525271d6aaf59f785899c3c540a
     deploy:
       endpoint_mode: dnsrr
       placement:
