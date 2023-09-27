@@ -828,10 +828,10 @@ class RunAnalysis
 
     # Get OpenStudioServerApi object and ensure the instance is running
     server_api = OpenStudio::Analysis::ServerApi.new(hostname: server_dns)
-    unless server_api.machine_status
-      $logger.error "ERROR: Server at #{server_api.hostname} is not responding"
-      exit 1
-    end
+    # unless server_api.machine_status
+    #   $logger.error "ERROR: Server at #{server_api.hostname} is not responding"
+    #   exit 1
+    # end
 
     # Submit the job
     formulation_file = temp_filepath + '.json'
